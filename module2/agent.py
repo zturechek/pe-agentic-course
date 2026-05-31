@@ -42,7 +42,17 @@ MOCK_RESPONSE = {
 #      - escalate (boolean): true if a human must review before taking action
 #
 # Hint: look at MOCK_RESPONSE above for the expected output shape.
-SYSTEM_PROMPT = ""  # replace this empty string with your prompt
+SYSTEM_PROMPT = """You are a CI/CD diagnostic agent embedded in a platform engineering workflow.
+
+When the user provides a deployment failure log, analyse it and respond with ONLY a valid JSON object — no explanation, no markdown, no code fences, no commentary before or after the JSON.
+
+The JSON object must contain exactly these four keys:
+  "diagnosis"          – one sentence identifying the root cause of the failure
+  "confidence"         – HIGH, MEDIUM, or LOW; use HIGH only when the root cause is directly confirmed in the logs
+  "recommended_action" – one concrete, actionable next step to resolve the failure
+  "escalate"           – boolean; true only if a human must review before any action is taken (e.g. production data at risk, security incident, ambiguous root cause with destructive remediation options); false for clear-cut failures with a safe fix
+
+Do not output anything other than this JSON object."""
 
 AGENT_CONFIG = {
     "model": "claude-opus-4-5-20251101",
@@ -68,18 +78,11 @@ def run_agent() -> dict:
         print("[MOCK MODE] Set ANTHROPIC_API_KEY and remove --mock to call the real API.\n")
         result = MOCK_RESPONSE
     else:
-        # TODO: Call ask() with SYSTEM_PROMPT and the log content.
-        #
-        # ask() signature:
-        #   ask(system=..., user=..., model=..., max_tokens=...)
-        #
-        # - system: use SYSTEM_PROMPT (defined above)
-        # - user:   pass the log as  f"Context:\n{context}"
-        # - model and max_tokens: use AGENT_CONFIG["model"] and AGENT_CONFIG["max_tokens"]
-        #
-        # Assign the return value to `result`.
-        raise NotImplementedError(
-            "Complete run_agent() — call ask() with SYSTEM_PROMPT and the log content."
+        result = ask(
+            system=SYSTEM_PROMPT,
+            user=f"Context:\n{context}",
+            model=AGENT_CONFIG["model"],
+            max_tokens=AGENT_CONFIG["max_tokens"],
         )
 
     print(json.dumps(result, indent=2))
