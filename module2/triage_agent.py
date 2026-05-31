@@ -77,15 +77,7 @@ def load_sample() -> str:
 
 
 def run_agent() -> dict:
-    """
-    TODO: Complete this function.
-
-    Steps:
-    1. Load the sample log using load_sample().
-    2. If MOCK_MODE is True, return MOCK_RESPONSE directly (already done for you).
-    3. Otherwise, call ask() with SYSTEM_PROMPT and the log as the user message.
-    4. Return the result dict.
-    """
+    """Load the CI failure log, call Claude, and return the structured JSON diagnosis."""
     log_content = load_sample()
 
     if MOCK_MODE:
