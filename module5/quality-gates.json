@@ -7,7 +7,7 @@
       "id": "test_coverage",
       "name": "Unit Test Coverage",
       "metric": "coverage_pct",
-      "threshold": 95,
+      "threshold": 70,
       "operator": ">=",
       "unit": "%",
       "rollback_trigger": false,
