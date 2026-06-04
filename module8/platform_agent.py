@@ -276,9 +276,8 @@ def run_step_diagnose(event: dict, ingest: dict) -> dict:
     classification so it has the full picture. Build the dict, call
     run_step() with DIAGNOSE_PROMPT, and return the result.
     """
-    # TODO: build context dict combining event and ingest result
-    # TODO: call run_step("DIAGNOSE", DIAGNOSE_PROMPT, context) and return the result
-    raise NotImplementedError("Complete run_step_diagnose() — see the docstring for the pattern.")
+    context = {**event, **ingest}
+    return run_step("DIAGNOSE", DIAGNOSE_PROMPT, context)
 
 
 def run_step_gate(event: dict, ingest: dict) -> dict:
@@ -295,9 +294,8 @@ def run_step_gate(event: dict, ingest: dict) -> dict:
     Hint: the context dict should look like:
         {"event": event, "classification": ingest}
     """
-    # TODO: build context dict combining event and ingest result
-    # TODO: call run_step("GATE", GATE_PROMPT, context) and return the result
-    raise NotImplementedError("Complete run_step_gate() — use ingest, not diagnose.")
+    context = {**event, **ingest}
+    return run_step("GATE", GATE_PROMPT, context)
 
 
 def detect_conflict(diagnose: dict, gate: dict) -> dict:
@@ -369,22 +367,19 @@ def run_step_fix_or_escalate(
       - conflict['resolution'] != 'SAFETY_FIRST_ESCALATE'
       - 'migration' not in the event logs (never auto-fix DB state)
     """
-    # TODO: build context dict including event, diagnose, gate, and conflict
-    # TODO: call run_step("FIX_OR_ESCALATE", FIX_OR_ESCALATE_PROMPT, context)
-    # TODO: handle AUTO_FIX path — call save_fix_script() if script is present
-    # TODO: return the result
-    raise NotImplementedError("Complete run_step_fix_or_escalate().")
+    context = {**event, **diagnose, **gate, **conflict}
+    result = run_step("FIX_OR_ESCALATE", FIX_OR_ESCALATE_PROMPT, context)
+    if result["path"] == "AUTO_FIX" and result.get("auto_fix_script"):
+        fix_path = save_fix_script(result["auto_fix_script"], pipeline_id)
+        result["fix_script_path"] = str(fix_path)
+    return result
 
 
 def generate_report(pipeline_id: str, steps: dict) -> dict:
     """Step 5 — REPORT: write the post-mortem.
 
-    TODO: Build context from pipeline_id and the full steps dict, call
-    run_step() with REPORT_PROMPT, and return the result.
-    """
-    # TODO: build context dict
-    # TODO: call run_step("REPORT", REPORT_PROMPT, context) and return the result
-    raise NotImplementedError("Complete generate_report().")
+    context = {"pipeline_id": pipeline_id, "steps": steps}
+    return run_step("REPORT", REPORT_PROMPT, context)
 
 
 # ── Orchestrator — do not modify ───────────────────────────────────────────────
