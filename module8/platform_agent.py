@@ -376,7 +376,6 @@ def run_step_fix_or_escalate(
 
 
 def generate_report(pipeline_id: str, steps: dict) -> dict:
-    """Step 5 — REPORT: write the post-mortem.
 
     context = {"pipeline_id": pipeline_id, "steps": steps}
     return run_step("REPORT", REPORT_PROMPT, context)
